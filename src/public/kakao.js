@@ -3,7 +3,7 @@
 // https://developers.kakao.com/docs/latest/ko/getting-started/sdk-js
 ;(() => {
   Kakao.init(APP_CONFIG.KAKAO_JAVASCRIPT_KEY)
-
+  console.log(APP_CONFIG.KAKAO_REDIRECT_URI)
   const el = document.getElementById('kakao-login')
   if (!el) {
     console.error('Kakao login button not found.')

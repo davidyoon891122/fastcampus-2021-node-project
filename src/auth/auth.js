@@ -1,5 +1,5 @@
 // @ts-check
-
+const { v4: uuidv4 } = require('uuid')
 const { signJWT } = require('./jwt')
 const { getUsersCollection } = require('../mongo')
 
@@ -7,7 +7,7 @@ const { getUsersCollection } = require('../mongo')
  * @param {string} userId
  */
 async function getAccessTokenForUserId(userId) {
-  return signJWT(userId)
+  return signJWT(userId.toString())
 }
 
 /**
@@ -41,7 +41,27 @@ async function createUserOrLogin({
     platformUserId,
   })
 
-  // TODO
+  if (existingUser) {
+    return {
+      userId: existingUser.id,
+      accessToken: await signJWT(existingUser.id.toString()),
+    }
+  }
+
+  const userId = uuidv4()
+  await users.insertOne({
+    id: userId,
+    platformUserId, // 해당 플랫폼에서의 user ID
+    platform, // kakao, naver, facebook
+    nickname,
+    profileImageURL,
+    verified: true,
+  })
+
+  return {
+    userId,
+    accessToken: await signJWT(userId.toString()),
+  }
 }
 
 /**

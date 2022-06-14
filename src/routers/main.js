@@ -1,5 +1,4 @@
 // @ts-check
-
 const express = require('express')
 
 const { APP_CONFIG_JSON } = require('../common')

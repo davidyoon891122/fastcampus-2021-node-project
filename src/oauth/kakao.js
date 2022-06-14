@@ -36,7 +36,7 @@ function setupKakaoLogin(app) {
   // https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api
   app.get('/auth/kakao/callback', async (req, res) => {
     const { code } = req.query
-
+    console.log('redirect : ', code)
     if (!code || typeof code !== 'string') {
       res.status(400).end()
       return
