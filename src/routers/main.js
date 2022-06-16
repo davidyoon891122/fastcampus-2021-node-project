@@ -13,7 +13,7 @@ const {
 } = require('../auth/auth')
 const { signJWT } = require('../auth/jwt')
 
-const HOST = '5d4e-58-127-18-58.jp.ngrok.io'
+const HOST = 'd3bd-58-127-18-58.jp.ngrok.io'
 
 const router = express.Router()
 
@@ -158,6 +158,33 @@ router.get('/verify-email', async (req, res) => {
   }
 
   const users = await getUsersCollection()
+
+  const user = await users.findOne({
+    emailVerificationCode: code,
+  })
+
+  if (!user) {
+    res.status(400).end()
+    return
+  }
+
+  await users.updateOne(
+    {
+      id: user.id,
+    },
+    {
+      $set: {
+        verified: true,
+      },
+    }
+  )
+
+  redirectWithMsg({
+    dest: '/',
+    info: '이메일이 인증되었습니다',
+    res,
+  })
+
   // TODO
 })
 
