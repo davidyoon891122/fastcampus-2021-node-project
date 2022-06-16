@@ -74,7 +74,37 @@ router.get('/request-reset-password', (req, res) => {
 router.get('/reset-password', async (req, res) => {
   const { code } = req.query
 
-  // TODO
+  const users = await getUsersCollection()
+
+  const user = await users.findOne({
+    passwordResetCode: code,
+  })
+
+  console.log(user)
+
+  if (!user || !user.pendingPassword) {
+    res.status(400).end()
+    return
+  }
+
+  const { pendingPassword } = user
+
+  await users.updateOne(
+    {
+      id: user.id,
+    },
+    {
+      $set: {
+        password: pendingPassword,
+        pendingPassword: null,
+      },
+    }
+  )
+  redirectWithMsg({
+    dest: '/',
+    info: '비밀번호가 변경되었습니다. 해당 비밀번호로 로그인 해 주세요.',
+    res,
+  })
 })
 
 router.post('/request-reset-password', async (req, res) => {
@@ -83,7 +113,73 @@ router.post('/request-reset-password', async (req, res) => {
     return
   }
 
-  // TODO
+  const { email, password } = req.body
+  const users = await getUsersCollection()
+
+  if (!email || !password) {
+    redirectWithMsg({
+      dest: '/request-reset-password',
+      error: '이메일과 비밀번호를 모두를 입력해주세요.',
+      res,
+    })
+    return
+  }
+
+  const existingUser = await users.findOne({
+    email,
+  })
+
+  if (!existingUser) {
+    redirectWithMsg({
+      dest: '/request-reset-password',
+      error: '존재하지 않는 이메일입니다.',
+      res,
+    })
+    return
+  }
+
+  const passwordResetCode = uuidv4()
+
+  await ses
+    .sendEmail({
+      Content: {
+        Simple: {
+          Subject: {
+            Data: '비밀번호 초기화',
+            Charset: 'UTF-8',
+          },
+          Body: {
+            Text: {
+              Data: `다음 링크를 눌러 비밀번호를 초기화 합니다. https://${HOST}/reset-password?code=${passwordResetCode}`,
+              Charset: 'UTF-8',
+            },
+          },
+        },
+      },
+      Destination: {
+        ToAddresses: [email],
+      },
+      FromEmailAddress: 'admin@davidyoonproject.com',
+    })
+    .promise()
+
+  await users.updateOne(
+    {
+      id: existingUser.id,
+    },
+    {
+      $set: {
+        pendingPassword: await encryptPassword(password),
+        passwordResetCode,
+      },
+    }
+  )
+
+  redirectWithMsg({
+    dest: '/',
+    info: '비밀번호 초기화 요청이 전송되었습니다. 이메일을 확인해 주세요.',
+    res,
+  })
 })
 
 router.get('/signup', (req, res) => {
@@ -114,7 +210,6 @@ router.post('/signin', async (req, res) => {
     return
   }
 
-  // TODO
   const existingUser = await users.findOne({
     email,
   })
@@ -184,15 +279,12 @@ router.get('/verify-email', async (req, res) => {
     info: '이메일이 인증되었습니다',
     res,
   })
-
-  // TODO
 })
 
 router.post('/signup', async (req, res) => {
   const users = await getUsersCollection()
   const { email, password } = req.body
 
-  // TODO
   if (!email || !password) {
     redirectWithMsg({
       dest: '/signup',
@@ -241,7 +333,7 @@ router.post('/signup', async (req, res) => {
   await users.insertOne({
     id: newUserId,
     email,
-    password: await encryptPassword(password), // TODO encrypt
+    password: await encryptPassword(password),
     verified: false,
     emailVerificationCode,
   })
