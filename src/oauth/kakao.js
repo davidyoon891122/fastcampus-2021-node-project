@@ -36,7 +36,6 @@ function setupKakaoLogin(app) {
   // https://developers.kakao.com/docs/latest/ko/kakaologin/rest-api
   app.get('/auth/kakao/callback', async (req, res) => {
     const { code } = req.query
-    console.log('redirect : ', code)
     if (!code || typeof code !== 'string') {
       res.status(400).end()
       return
@@ -73,6 +72,8 @@ function setupKakaoLogin(app) {
     const user = await createUserOrLogin({
       platform: 'kakao',
       platformUserId: me.id.toString(),
+      nickname: me.kakao_account.profile.nickname,
+      profileImageURL: me.kakao_account.profile.profile_image_url,
     })
     setAccessTokenCookie(res, user.accessToken)
     res.redirect('/')
