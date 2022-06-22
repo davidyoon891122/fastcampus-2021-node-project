@@ -26,11 +26,6 @@ const ses = new SESV2({
 })
 
 router.get('/', async (req, res) => {
-  /*
-  TODOS
-  - 다른 사람의 글에는 삭제 버튼을 보여주지 말 것
-  */
-
   if (req.user) {
     const postsCol = await getPostCollection()
 
