@@ -2,8 +2,10 @@
 
 const express = require('express')
 const cookieParser = require('cookie-parser')
+const pino = require('pino-http')()
 
 const app = express()
+app.use(pino)
 app.use(express.json())
 app.use(express.urlencoded({ extended: true })) // form POST를 처리하기 위해 필요합니다.
 app.set('views', 'src/views')
