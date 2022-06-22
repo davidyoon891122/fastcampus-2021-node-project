@@ -6,7 +6,10 @@ block contents
         a.logout.text-sm.text-gray-600(href="/logout") 로그아웃
 
         form.mt-16(method='POST' action='/posts')
-            h2.text-lg.text-center.mb-2 피드에 새 글을 써 보세요.
+            div.text-lg.text-center
+                span.font-bold #{user.nickname || user.email}
+                span 님,
+            div.text-lg.text-center.mb-4  피드에 새 글을 써 보세요.
             div.flex.flex-row.justify-center.align_center
                 input.rounded.border.border-gray-200.p-2(name='content' placeholder="내용을 써 보세요.")
                 button.rounded.bg-blue-500.p-2.text-white.ml-2 올리기
