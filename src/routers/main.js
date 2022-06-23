@@ -19,6 +19,7 @@ const HOST = 'd3bd-58-127-18-58.jp.ngrok.io'
 
 const router = express.Router()
 console.log('add fake commit')
+console.log('add second fake commit')
 const ses = new SESV2({
   accessKeyId: process.env.AWS_ACCESS_KET_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
