@@ -1,7 +1,5 @@
-const HOST = 'd3bd-58-127-18-58.jp.ngrok.io/'
-
 /* eslint-disable prefer-destructuring */
-
+const HOST = process.env.HOST
 /** @type {string} */
 const FB_APP_ID = process.env.FB_APP_ID
 /** @type {string} */
